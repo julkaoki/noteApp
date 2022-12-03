@@ -1,11 +1,46 @@
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NoteApp</title>
-</head>
-<body>
-    
-</body>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  </head>
+  <body>
+    <div class="app-header bg-secondary"><h1>NoteApp</h1></div>
+    <div class="row">
+      <section id="create-task" class="card col-4 bg-warning">
+
+            <h5 class="card-header">Dodaj nowe zadanie</h5>
+            <form class="p-3">
+                <label for="task-name" class="form-label">Co chcesz zrobić?</label>
+                <input type="text" class="form-control form-icon-trailing" id="task-name">
+                <label for="priority" class="form-label">Jak pilne jest to zadanie?</label>
+                <select  class="form-control form-icon-trailing" id="priority">
+                    <option id="priority-zero">wybierz</option>
+                    <option id="priority-very-high">bardzo pilne</option>
+                    <option id="priority-high">ważne</option>
+                    <option id="priority-normal">normalne</option>
+                    <option id="priority-low">może poczekać</option>
+                </select>
+                <label for="date" class="form-label">Do kiedy chcesz je wykonać?</label>
+                <input type="date" class="form-control form-icon-trailing" id="date">
+                <label for="time" class="form-label">Chcesz wykonać je o danej godzinie?</label>
+                <input type="time" class="form-control form-icon-trailing" id="time">
+                <button type="button" class="btn btn-primary mt-3" id="new-task-btn">Dodaj zadanie</button>
+            </form>
+        
+      </section>
+      <section id="to-do-tasks" class="card col-4 bg-success">
+            <h5 class="card-header">Twoje zadania</h5>
+      </section>
+      <section id="done-tasks" class="card col-4 bg-danger">
+        <h5 class="card-header">Zadania wykonane</h5>
+      </section>
+    </div>
+  </body>
 </html>

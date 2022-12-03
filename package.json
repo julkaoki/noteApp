@@ -7,7 +7,7 @@
     "start": "webpack serve --mode development",
     "dev": "webpack --mode development",
     "prod": "webpack --mode production"
-    },
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/julkaoki/noteApp.git"
@@ -25,5 +25,8 @@
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.0",
     "webpack-dev-server": "^4.11.1"
+  },
+  "dependencies": {
+    "firebase": "^9.14.0"
   }
 }
