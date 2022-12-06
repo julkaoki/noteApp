@@ -1,5 +1,6 @@
 import "./../styles/styles.css"
 import { initializeApp } from "firebase/app";
+import { addDoc, collection, getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCzo9nfQ6ITrSXSZ-2qrxRMQN59JDlwdiU",
@@ -11,3 +12,64 @@ const firebaseConfig = {
   };
 
 const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const tasksCol = collection(db, "tasks");
+
+// INPUT WINDOWS
+
+const taskInp = document.getElementById("task-name");
+const priorityInp = document.getElementById("priority");
+const dateInp = document.getElementById("date");
+const timeInp = document.getElementById("time");
+const newTaskBtn = document.getElementById("new-task-btn");
+
+// YOUR TASKS SECTION
+
+const currentTasks = document.getElementById("to-do-tasks");
+
+// NEW TASK BUTTON EVENT
+
+newTaskBtn.addEventListener("click", () => {
+    const taskName = taskInp.value;
+    const priority = priorityInp.selectedIndex;
+    const date = dateInp.value;
+    const time = timeInp.value;
+
+    taskInp.value = "";
+    priorityInp.selectedIndex = "0";
+    dateInp.value = "";
+    timeInp.value = "";
+
+    console.log(taskName, priority, date, time);
+
+    // create new task card
+
+    const taskCard = document.createElement("div");
+    taskCard.classList.add("card-body");
+
+    const taskNameHeader = document.createElement("h4");
+    taskNameHeader.classList.add("card-subtitle");
+    taskNameHeader.innerText = taskName;
+
+    const taskDate = document.createElement("p");
+    taskDate.classList.add("card-text");
+    taskDate.innerText = date;
+
+    const taskTime = document.createElement("p");
+    taskDate.classList.add("card-text");
+    taskDate.innerText = time;
+
+    taskCard.appendChild(taskNameHeader);
+    taskCard.appendChild(taskDate);
+    taskCard.appendChild(taskTime);
+
+    currentTasks.appendChild(taskCard);
+
+    addDoc(tasksCol, {
+      name: `${taskName}`,
+      date: `${date}`,
+      time: `${time}`,
+      priority: priority
+    });
+
+});
