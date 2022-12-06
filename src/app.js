@@ -27,6 +27,31 @@ const newTaskBtn = document.getElementById("new-task-btn");
 
 const currentTasks = document.getElementById("to-do-tasks");
 
+// CREATE TASK CARD FUNCTION
+
+function createTaskCard(name, priority, date, time) {
+    const taskCard = document.createElement("div");
+    taskCard.classList.add("card-body");
+
+    const taskNameHeader = document.createElement("h4");
+    taskNameHeader.classList.add("card-subtitle");
+    taskNameHeader.innerText = name;
+
+    const taskDate = document.createElement("p");
+    taskDate.classList.add("card-text");
+    taskDate.innerText = date;
+
+    const taskTime = document.createElement("p");
+    taskDate.classList.add("card-text");
+    taskDate.innerText = time;
+
+    taskCard.appendChild(taskNameHeader);
+    taskCard.appendChild(taskDate);
+    taskCard.appendChild(taskTime);
+
+    currentTasks.appendChild(taskCard);
+}
+
 // NEW TASK BUTTON EVENT
 
 newTaskBtn.addEventListener("click", () => {
@@ -42,28 +67,7 @@ newTaskBtn.addEventListener("click", () => {
 
     console.log(taskName, priority, date, time);
 
-    // create new task card
-
-    const taskCard = document.createElement("div");
-    taskCard.classList.add("card-body");
-
-    const taskNameHeader = document.createElement("h4");
-    taskNameHeader.classList.add("card-subtitle");
-    taskNameHeader.innerText = taskName;
-
-    const taskDate = document.createElement("p");
-    taskDate.classList.add("card-text");
-    taskDate.innerText = date;
-
-    const taskTime = document.createElement("p");
-    taskDate.classList.add("card-text");
-    taskDate.innerText = time;
-
-    taskCard.appendChild(taskNameHeader);
-    taskCard.appendChild(taskDate);
-    taskCard.appendChild(taskTime);
-
-    currentTasks.appendChild(taskCard);
+    createTaskCard(taskName, priority, date, time);
 
     addDoc(tasksCol, {
       name: `${taskName}`,
