@@ -1,6 +1,6 @@
 import "./../styles/styles.css"
 import { initializeApp } from "firebase/app";
-import { addDoc, collection, doc, getDoc, getDocs, getFirestore, setDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, onSnapshot, setDoc } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCzo9nfQ6ITrSXSZ-2qrxRMQN59JDlwdiU",
@@ -29,6 +29,8 @@ const newTaskBtn = document.getElementById("new-task-btn");
 const currentTasks = document.getElementById("to-do-tasks");
 const doneTasks = document.getElementById("done-tasks");
 
+// 
+
 // CREATE TASK CARD FUNCTION
 
 function createTaskCard(taskId, taskData) {
@@ -48,13 +50,29 @@ function createTaskCard(taskId, taskData) {
     taskTime.innerText = taskData.time;
 
     const completedBtn = document.createElement("button");
-    completedBtn.id = "complete-btn";
     completedBtn.classList.add("complete-btn");
     completedBtn.innerText = "Zrobione!";
+
+    completedBtn.addEventListener("click", () => {
+      console.log("zrobione");
+      console.log(taskId);
+      const toDoTask = doc(db, "tasks", taskId);
+      const completedTask = doc(db, "completedTasks", taskId);
+      setDoc(completedTask, {
+        name: `${taskData.name}`,
+        date: `${taskData.date}`
+      });
+      deleteDoc(toDoTask);
+    });
 
     const deleteBtn = document.createElement("button");
     deleteBtn.classList.add("delete-btn");
     deleteBtn.innerText = "Usuń";
+
+    deleteBtn.addEventListener("click", () => {
+      const toDoTask = doc(db, "tasks", taskId);
+      deleteDoc(toDoTask);
+    });
 
     taskCard.appendChild(taskNameHeader);
     taskCard.appendChild(taskDate);
@@ -85,12 +103,16 @@ function createCompletedTaskCard(taskId, taskData) {
   deleteBtn.classList.add("delete-btn");
   deleteBtn.innerText = "Usuń";
 
+  deleteBtn.addEventListener("click", () => {
+    const completedTask = doc(db, "completedTasks", taskId);
+    deleteDoc(completedTask);
+  });
+
   taskCard.appendChild(taskNameHeader);
   taskCard.appendChild(taskDate);
   taskCard.appendChild(deleteBtn);
 
   taskCard.dataset.id = taskId;
-  completedBtn.dataset.id = taskId;
   deleteBtn.dataset.id = taskId;
 
   doneTasks.appendChild(taskCard);
@@ -98,27 +120,39 @@ function createCompletedTaskCard(taskId, taskData) {
 
 // SHOW TASKS FROM DATABASE
 
-getDocs(tasksCol).then((docs) => {
-  docs.forEach((taskDoc) => {
-      const taskItem = taskDoc.data();
-      const taskId = taskDoc.id;
-      console.log(taskItem);
-      createTaskCard(taskId, taskItem);
+onSnapshot(tasksCol, (snapshot) => {
+  snapshot.docChanges().forEach((taskDoc) => {
+    const taskItem = taskDoc.doc.data();
+    const taskId = taskDoc.doc.id;
+    createTaskCard(taskId, taskItem);
   });
 });
+
+// getDocs(tasksCol).then((docs) => {
+//   docs.forEach((taskDoc) => {
+//       const taskItem = taskDoc.data();
+//       const taskId = taskDoc.id;
+//       createTaskCard(taskId, taskItem);
+//   });
+// });
 
 // SHOW COMPLETED TASKS FROM DATABASE
 
-getDocs(completedCol).then((docs) => {
-  docs.forEach((taskDoc) => {
-      const taskItem = taskDoc.data();
-      const taskId = taskDoc.id;
-      console.log(taskItem);
-      // createCompletedTaskCard(taskId, taskItem);
+// getDocs(completedCol).then((docs) => {
+//   docs.forEach((taskDoc) => {
+//       const taskItem = taskDoc.data();
+//       const taskId = taskDoc.id;
+//       createCompletedTaskCard(taskId, taskItem);
+//   });
+// });
+
+onSnapshot(completedCol, (snapshot) => {
+  snapshot.docChanges().forEach((taskDoc) => {
+    const taskItem = taskDoc.doc.data();
+    const taskId = taskDoc.doc.id;
+    createCompletedTaskCard(taskId, taskItem);
   });
 });
-
-
 
 // NEW TASK BUTTON EVENT
 
@@ -142,24 +176,4 @@ newTaskBtn.addEventListener("click", () => {
 
 });
 
-// "TASK COMPLETED" BUTTON EVENTS
-
-const completedBtn = document.getElementById("complete-btn");
-completedBtn.addEventListener("click", (event) => {
-    const clickedTask = doc(tasksCol, event.target.dataset.id);
-    const completedTaskCopy = doc(completedCol, event.target.dataset.id);
-
-    const taskName = clickedTask.name;
-    //const priority = clickedTask.priority;
-    const date = clickedTask.date;
-    //const time = clickedTask.time;
-
-    console.log("complete button");
-
-    setDoc(completedTaskCopy, {
-      name: `${taskName}`,
-      date: `${date}`
-    });
-
-});
 
