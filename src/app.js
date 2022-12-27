@@ -1,6 +1,6 @@
 import "./../styles/styles.css"
 import { initializeApp } from "firebase/app";
-import { addDoc, collection, getFirestore } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, getFirestore, setDoc } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCzo9nfQ6ITrSXSZ-2qrxRMQN59JDlwdiU",
@@ -14,6 +14,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const tasksCol = collection(db, "tasks");
+const completedCol = collection(db, "completedTasks");
 
 // INPUT WINDOWS
 
@@ -23,34 +24,101 @@ const dateInp = document.getElementById("date");
 const timeInp = document.getElementById("time");
 const newTaskBtn = document.getElementById("new-task-btn");
 
-// YOUR TASKS SECTION
+// TASKS SECTION
 
 const currentTasks = document.getElementById("to-do-tasks");
+const doneTasks = document.getElementById("done-tasks");
 
 // CREATE TASK CARD FUNCTION
 
-function createTaskCard(name, priority, date, time) {
+function createTaskCard(taskId, taskData) {
     const taskCard = document.createElement("div");
     taskCard.classList.add("card-body");
 
-    const taskNameHeader = document.createElement("h4");
+    const taskNameHeader = document.createElement("h5");
     taskNameHeader.classList.add("card-subtitle");
-    taskNameHeader.innerText = name;
+    taskNameHeader.innerText = taskData.name;
 
-    const taskDate = document.createElement("p");
+    const taskDate = document.createElement("div");
     taskDate.classList.add("card-text");
-    taskDate.innerText = date;
+    taskDate.innerText = taskData.date;
 
-    const taskTime = document.createElement("p");
-    taskDate.classList.add("card-text");
-    taskDate.innerText = time;
+    const taskTime = document.createElement("div");
+    taskTime.classList.add("card-text");
+    taskTime.innerText = taskData.time;
+
+    const completedBtn = document.createElement("button");
+    completedBtn.id = "complete-btn";
+    completedBtn.classList.add("complete-btn");
+    completedBtn.innerText = "Zrobione!";
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.classList.add("delete-btn");
+    deleteBtn.innerText = "Usuń";
 
     taskCard.appendChild(taskNameHeader);
     taskCard.appendChild(taskDate);
     taskCard.appendChild(taskTime);
+    taskCard.appendChild(completedBtn);
+    taskCard.appendChild(deleteBtn);
+
+    taskCard.dataset.id = taskId;
+    completedBtn.dataset.id = taskId;
+    deleteBtn.dataset.id = taskId;
 
     currentTasks.appendChild(taskCard);
 }
+
+function createCompletedTaskCard(taskId, taskData) {
+  const taskCard = document.createElement("div");
+  taskCard.classList.add("card-body");
+
+  const taskNameHeader = document.createElement("h5");
+  taskNameHeader.classList.add("card-subtitle");
+  taskNameHeader.innerText = taskData.name;
+
+  const taskDate = document.createElement("div");
+  taskDate.classList.add("card-text");
+  taskDate.innerText = taskData.date;
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.classList.add("delete-btn");
+  deleteBtn.innerText = "Usuń";
+
+  taskCard.appendChild(taskNameHeader);
+  taskCard.appendChild(taskDate);
+  taskCard.appendChild(deleteBtn);
+
+  taskCard.dataset.id = taskId;
+  completedBtn.dataset.id = taskId;
+  deleteBtn.dataset.id = taskId;
+
+  doneTasks.appendChild(taskCard);
+}
+
+// SHOW TASKS FROM DATABASE
+
+getDocs(tasksCol).then((docs) => {
+  docs.forEach((taskDoc) => {
+      const taskItem = taskDoc.data();
+      const taskId = taskDoc.id;
+      console.log(taskItem);
+      createTaskCard(taskId, taskItem);
+  });
+});
+
+// SHOW COMPLETED TASKS FROM DATABASE
+
+getDocs(completedCol).then((docs) => {
+  docs.forEach((taskDoc) => {
+      const taskItem = taskDoc.data();
+      const taskId = taskDoc.id;
+      console.log(taskItem);
+      // createCompletedTaskCard(taskId, taskItem);
+  });
+});
+
+
 
 // NEW TASK BUTTON EVENT
 
@@ -65,10 +133,6 @@ newTaskBtn.addEventListener("click", () => {
     dateInp.value = "";
     timeInp.value = "";
 
-    console.log(taskName, priority, date, time);
-
-    createTaskCard(taskName, priority, date, time);
-
     addDoc(tasksCol, {
       name: `${taskName}`,
       date: `${date}`,
@@ -77,3 +141,25 @@ newTaskBtn.addEventListener("click", () => {
     });
 
 });
+
+// "TASK COMPLETED" BUTTON EVENTS
+
+const completedBtn = document.getElementById("complete-btn");
+completedBtn.addEventListener("click", (event) => {
+    const clickedTask = doc(tasksCol, event.target.dataset.id);
+    const completedTaskCopy = doc(completedCol, event.target.dataset.id);
+
+    const taskName = clickedTask.name;
+    //const priority = clickedTask.priority;
+    const date = clickedTask.date;
+    //const time = clickedTask.time;
+
+    console.log("complete button");
+
+    setDoc(completedTaskCopy, {
+      name: `${taskName}`,
+      date: `${date}`
+    });
+
+});
+
