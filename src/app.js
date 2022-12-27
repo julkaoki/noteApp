@@ -53,18 +53,6 @@ function createTaskCard(taskId, taskData) {
     completedBtn.classList.add("complete-btn");
     completedBtn.innerText = "Zrobione!";
 
-    completedBtn.addEventListener("click", () => {
-      console.log("zrobione");
-      console.log(taskId);
-      const toDoTask = doc(db, "tasks", taskId);
-      const completedTask = doc(db, "completedTasks", taskId);
-      setDoc(completedTask, {
-        name: `${taskData.name}`,
-        date: `${taskData.date}`
-      });
-      deleteDoc(toDoTask);
-    });
-
     const deleteBtn = document.createElement("button");
     deleteBtn.classList.add("delete-btn");
     deleteBtn.innerText = "Usuń";
@@ -85,6 +73,20 @@ function createTaskCard(taskId, taskData) {
     deleteBtn.dataset.id = taskId;
 
     currentTasks.appendChild(taskCard);
+
+    completedBtn.addEventListener("click", () => {
+      const toDoTask = doc(db, "tasks", taskId);
+      const completedTask = doc(db, "completedTasks", taskId);
+      setDoc(completedTask, {
+        name: `${taskData.name}`,
+        date: `${taskData.date}`,
+        time: `${taskData.time}`,
+        priority: taskData.priority
+      });
+      deleteDoc(toDoTask);
+      // currentTasks.removeChild(taskCard);
+    });
+
 }
 
 function createCompletedTaskCard(taskId, taskData) {
@@ -99,6 +101,22 @@ function createCompletedTaskCard(taskId, taskData) {
   taskDate.classList.add("card-text");
   taskDate.innerText = taskData.date;
 
+  const restoreBtn = document.createElement("button");
+  restoreBtn.classList.add("restore-btn");
+  restoreBtn.innerText = "Przywróć";
+
+  restoreBtn.addEventListener("click", () => {
+      const toDoTask = doc(db, "tasks", taskId);
+      const completedTask = doc(db, "completedTasks", taskId);
+      setDoc(toDoTask, {
+        name: `${taskData.name}`,
+        date: `${taskData.date}`,
+        time: `${taskData.time}`,
+        priority: taskData.priority
+      });
+      deleteDoc(completedTask);
+    });
+
   const deleteBtn = document.createElement("button");
   deleteBtn.classList.add("delete-btn");
   deleteBtn.innerText = "Usuń";
@@ -110,9 +128,11 @@ function createCompletedTaskCard(taskId, taskData) {
 
   taskCard.appendChild(taskNameHeader);
   taskCard.appendChild(taskDate);
+  taskCard.appendChild(restoreBtn);
   taskCard.appendChild(deleteBtn);
 
   taskCard.dataset.id = taskId;
+  restoreBtn.dataset.id = taskId;
   deleteBtn.dataset.id = taskId;
 
   doneTasks.appendChild(taskCard);
@@ -121,35 +141,19 @@ function createCompletedTaskCard(taskId, taskData) {
 // SHOW TASKS FROM DATABASE
 
 onSnapshot(tasksCol, (snapshot) => {
-  snapshot.docChanges().forEach((taskDoc) => {
-    const taskItem = taskDoc.doc.data();
-    const taskId = taskDoc.doc.id;
+  currentTasks.innerHTML = "";
+  snapshot.forEach((taskDoc) => {
+    const taskItem = taskDoc.data();
+    const taskId = taskDoc.id;
     createTaskCard(taskId, taskItem);
   });
 });
 
-// getDocs(tasksCol).then((docs) => {
-//   docs.forEach((taskDoc) => {
-//       const taskItem = taskDoc.data();
-//       const taskId = taskDoc.id;
-//       createTaskCard(taskId, taskItem);
-//   });
-// });
-
-// SHOW COMPLETED TASKS FROM DATABASE
-
-// getDocs(completedCol).then((docs) => {
-//   docs.forEach((taskDoc) => {
-//       const taskItem = taskDoc.data();
-//       const taskId = taskDoc.id;
-//       createCompletedTaskCard(taskId, taskItem);
-//   });
-// });
-
 onSnapshot(completedCol, (snapshot) => {
-  snapshot.docChanges().forEach((taskDoc) => {
-    const taskItem = taskDoc.doc.data();
-    const taskId = taskDoc.doc.id;
+  doneTasks.innerHTML = "";
+  snapshot.forEach((taskDoc) => {
+    const taskItem = taskDoc.data();
+    const taskId = taskDoc.id;
     createCompletedTaskCard(taskId, taskItem);
   });
 });
@@ -175,5 +179,4 @@ newTaskBtn.addEventListener("click", () => {
     });
 
 });
-
 
